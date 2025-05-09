@@ -1,0 +1,6 @@
+[submodule "vendors/atom_core"]
+	path = vendors/atom_core
+	url = https://github.com/chetansinghsajwan/atom_core
+[submodule "vendors/atom_logging"]
+	path = vendors/atom_logging
+	url = https://github.com/chetansinghsajwan/atom_logging
