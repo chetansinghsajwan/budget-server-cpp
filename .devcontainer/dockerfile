@@ -1,3 +1,14 @@
 FROM chetansinghsajwan/atom_core:dev
 
 ENV CMAKE_EXPORT_COMPILE_COMMANDS="True"
+
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends \
+    software-properties-common \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN add-apt-repository ppa:pistache+team/unstable \
+    && apt-get update \
+    && apt-get install --yes --no-install-recommends \
+    libpistache-dev \
+    && rm -rf /var/lib/apt/lists/*
