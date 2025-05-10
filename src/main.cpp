@@ -1,27 +1,26 @@
-#include <exception>
-#include <pistache/endpoint.h>
-#include <pistache/router.h>
+import pistache;
+import transaction;
 
-import atom_core;
-
-using namespace Pistache;
-using namespace Pistache::Http;
-
-auto get_transaction(const Rest::Request& request, Http::ResponseWriter response) -> void
-{
-    response.send(Code::Ok, "Get transaction request recieved.");
-}
+using Pistache::Port;
+using Pistache::Ipv4;
+using Pistache::Address;
+using Pistache::Http::Endpoint;
+using Pistache::Rest::Router;
+using Pistache::Rest::Routes::bind;
 
 auto main() -> int
 {
-    Rest::Router router;
+    Router router;
 
-    router.get("/transaction", Rest::Routes::bind(get_transaction));
+    router.post("/transaction", bind(handle_post_transaction));
+    router.put("/transaction", bind(handle_put_transaction));
+    router.get("/transaction", bind(handle_get_transaction));
+    router.del("/transaction", bind(handle_del_transaction));
 
-    auto opts = Http::Endpoint::options().threads(1);
+    auto opts = Endpoint::options().threads(1);
 
     Address addr(Ipv4::any(), Port(8080));
-    Http::Endpoint server{ addr };
+    Endpoint server{ addr };
     server.init(opts);
     server.setHandler(router.handler());
     server.serve();

@@ -21,10 +21,8 @@ add_subdirectory("vendors/pistache")
 
 add_executable(budget_server)
 
-file(GLOB_RECURSE budget_server_modules "src/*.cppm" "src/*.cxx")
-file(GLOB_RECURSE budget_server_sources "src/*.cpp")
-
-message("budget_server_modules: ${budget_server_modules}")
+file(GLOB_RECURSE budget_server_modules "src/*.cppm")
+file(GLOB_RECURSE budget_server_sources "src/*.cpp" "src/*.cxx")
 
 target_sources(budget_server PUBLIC FILE_SET CXX_MODULES FILES ${budget_server_modules})
 target_sources(budget_server PUBLIC ${budget_server_sources})
