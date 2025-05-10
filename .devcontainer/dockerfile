@@ -38,7 +38,8 @@ FROM base AS libpqxx_builder
 
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends \
-    libpq-dev
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN git clone "https://github.com/jtv/libpqxx" \
     --depth 1 --branch $LIBPQXX_VERSION \
@@ -52,3 +53,9 @@ FROM base AS dev
 COPY --from=rapidjson_builder $CMAKE_INSTALL_DIR /usr/local
 COPY --from=openssl_builder $CMAKE_INSTALL_DIR /usr/local
 COPY --from=libpqxx_builder $CMAKE_INSTALL_DIR /usr/local
+
+# Required by libpqxx
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
