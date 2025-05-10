@@ -2,13 +2,26 @@ FROM chetansinghsajwan/atom_core:dev
 
 ENV CMAKE_EXPORT_COMPILE_COMMANDS="True"
 
-RUN apt-get update \
-    && apt-get install --yes --no-install-recommends \
-    software-properties-common \
-    && rm -rf /var/lib/apt/lists/*
+ARG RAPIDJSON_VERSION="v1.1.0"
+ARG OPENSSL_VERSION="3.5.0"
 
-RUN add-apt-repository ppa:pistache+team/unstable \
-    && apt-get update \
-    && apt-get install --yes --no-install-recommends \
-    libpistache-dev \
-    && rm -rf /var/lib/apt/lists/*
+# Installing rapdijson, required by pistache
+RUN git clone "https://github.com/Tencent/rapidjson" \
+    --depth 1 --branch $RAPIDJSON_VERSION \
+    && cd rapidjson \
+    && cmake -S . -B build \
+    -D RAPIDJSON_BUILD_DOC=OFF \
+    -D RAPIDJSON_BUILD_EXAMPLES=OFF \
+    -D RAPIDJSON_BUILD_TESTS=OFF \
+    -D RAPIDJSON_BUILD_CXX20=ON \
+    -D RAPIDJSON_HAS_STDSTRING=ON \
+    && cmake --build build \
+    && cmake --install build
+
+# Installing openssl, required by pistache
+RUN wget "https://github.com/openssl/openssl/releases/download/openssl-$OPENSSL_VERSION/openssl-$OPENSSL_VERSION.tar.gz" \
+    && tar -xzf "openssl-$OPENSSL_VERSION.tar.gz" \
+    && cd openssl-$OPENSSL_VERSION \
+    && ./config \
+    && make \
+    && make install
