@@ -7,6 +7,8 @@ cmake_policy(SET CMP0077 NEW)
 set(OpenSSL_DIR "/usr/local/lib64/cmake/OpenSSL")
 find_package(OpenSSL 3.5.0 CONFIG REQUIRED)
 
+find_package("libpqxx" REQUIRED)
+
 add_subdirectory("vendors/atom_core")
 add_subdirectory("vendors/atom_logging")
 
@@ -27,6 +29,6 @@ file(GLOB_RECURSE budget_server_sources "src/*.cpp" "src/*.cxx")
 target_sources(budget_server PUBLIC FILE_SET CXX_MODULES FILES ${budget_server_modules})
 target_sources(budget_server PUBLIC ${budget_server_sources})
 
-target_link_libraries(budget_server PRIVATE "atom_core" "atom_logging" "pistache")
+target_link_libraries(budget_server PRIVATE "atom_core" "atom_logging" "pistache" "libpqxx::pqxx")
 target_link_libraries(budget_server PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 target_compile_features(budget_server PRIVATE "cxx_std_23")

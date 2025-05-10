@@ -31,6 +31,7 @@ export namespace Pistache
     {
         using ::Pistache::Rest::Request;
         using ::Pistache::Rest::Router;
+        using ::Pistache::Rest::TypedParam;
 
         namespace Routes
         {

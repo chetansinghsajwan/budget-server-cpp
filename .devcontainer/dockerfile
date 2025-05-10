@@ -1,11 +1,15 @@
-FROM chetansinghsajwan/atom_core:dev
+FROM chetansinghsajwan/atom_core:dev AS base
 
 ENV CMAKE_EXPORT_COMPILE_COMMANDS="True"
 
+ARG CMAKE_INSTALL_DIR="/out"
 ARG RAPIDJSON_VERSION="v1.1.0"
 ARG OPENSSL_VERSION="3.5.0"
+ARG LIBPQXX_VERSION="7.10.1"
 
 # Installing rapdijson, required by pistache
+FROM base AS rapidjson_builder
+
 RUN git clone "https://github.com/Tencent/rapidjson" \
     --depth 1 --branch $RAPIDJSON_VERSION \
     && cd rapidjson \
@@ -15,13 +19,36 @@ RUN git clone "https://github.com/Tencent/rapidjson" \
     -D RAPIDJSON_BUILD_TESTS=OFF \
     -D RAPIDJSON_BUILD_CXX20=ON \
     -D RAPIDJSON_HAS_STDSTRING=ON \
+    -D CMAKE_INSTALL_PREFIX=$CMAKE_INSTALL_DIR \
     && cmake --build build \
     && cmake --install build
 
 # Installing openssl, required by pistache
+FROM base AS openssl_builder
+
 RUN wget "https://github.com/openssl/openssl/releases/download/openssl-$OPENSSL_VERSION/openssl-$OPENSSL_VERSION.tar.gz" \
     && tar -xzf "openssl-$OPENSSL_VERSION.tar.gz" \
     && cd openssl-$OPENSSL_VERSION \
-    && ./config \
+    && ./Configure --prefix=$CMAKE_INSTALL_DIR --openssldir=$CMAKE_INSTALL_DIR \
     && make \
     && make install
+
+# Installing libpqxx
+FROM base AS libpqxx_builder
+
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends \
+    libpq-dev
+
+RUN git clone "https://github.com/jtv/libpqxx" \
+    --depth 1 --branch $LIBPQXX_VERSION \
+    && cd libpqxx \
+    && cmake -S . -B build \
+    && cmake --build build \
+    && cmake --install build --prefix $CMAKE_INSTALL_DIR
+
+FROM base AS dev
+
+COPY --from=rapidjson_builder $CMAKE_INSTALL_DIR /usr/local
+COPY --from=openssl_builder $CMAKE_INSTALL_DIR /usr/local
+COPY --from=libpqxx_builder $CMAKE_INSTALL_DIR /usr/local
